@@ -16,36 +16,18 @@ def inputQuestionsAPI():
         id = ""
         if "id" in data:
             id = data["id"]
-        
         # Find the operation requested
         operation = ""
         if "operation" in data:
             operation = data["operation"]
-        
+        if not id or not operation:
+            return "Please specify id and operation"
         # Do the operation
         if operation == "Question-Answer-Identification":
             htmlContent = data["html_content"]
             inputQuestions = get_llm_input_questions(id, htmlContent)
-            print(f"{inputQuestions=}\n")
             return inputQuestions
-        
-        """
-        elif operation == "Question-Answer-Fast":
-            htmlContent = data["html_content"]
-            qas = getFastQA(id, htmlContent)
-            answers = answerQAs(id, qas)
-            return answers
-        elif operation == "Identify-Question-Answers":
-            htmlContent = data["html_content"]
-            qas = getFastQA(id, htmlContent)
-            return qas
-        elif operation == "Answer-Input-Questions":
-            qas = data["qas"]
-            answers = answerQAs(id, qas)
-            return answers
-        return {"response": "401"}
-        """
-    return None
+    return "Hello World, inputQuestions!"
 
 
 @app.route("/", methods=("GET", "POST"))
@@ -60,27 +42,7 @@ def index():
         if "operation" in data:
             operation = data["operation"]
         return {"response": "Hello, World!"}
-        """
-        # Do the operation
-        if operation == "Question-Answer":
-            htmlContent = data["html_content"]
-            answers = getQA(id, htmlContent)
-            return answers
-        
-        elif operation == "Question-Answer-Fast":
-            htmlContent = data["html_content"]
-            qas = getFastQA(id, htmlContent)
-            for item in qas:
-                for key, val in item.items():
-                    print(key, val)
-            answers = answerQAs(id, qas)
-            return answers
-        elif operation == "Google-Search":
-            return {"response": "Not added yet"}
-        """
-    return "placeholder webpage no longer supported"
-    #result = request.args.get("result")
-    #return render_template("index.html", result=result)
+    return "Hello, World!"
 
 
 def load_credentials():
@@ -109,5 +71,5 @@ if __name__ == "__main__":
     path = "c:/Users/bill/github/AutofillAPI"
     os.chdir(path)
     credentials = load_credentials()
-    openai.api_key = credentials["ALEX_OPENAI_API_KEY"]
+    openai.api_key = credentials["OPENAI_API_KEY"]
     app.run()

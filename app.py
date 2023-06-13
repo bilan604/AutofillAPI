@@ -2,8 +2,9 @@ import os
 import openai
 import json
 import flask
+from app import get_llm_input_questions
 from flask import Flask, redirect, render_template, request, url_for
-from functions import *
+
 
 count = 0
 app = Flask(__name__)

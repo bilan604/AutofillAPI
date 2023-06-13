@@ -8,7 +8,6 @@ from bs4 import BeautifulSoup
 import openai
 
 
-
 def getPromptedResponse(content):
     verdicts = []
     for text, words, tag in content:

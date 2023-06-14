@@ -10,8 +10,8 @@ def getTags(htmlContent):
 
 #
 def parseTextSpacing(s):
-    words = re.sub("</.+?>", "<[/element]>", s)
-    words = re.sub("<.+?>", "<[element]>", words)
+    words = re.sub("</.+?>", "", s)
+    words = re.sub("<.+?>", "", words)
     words = re.sub("\n+", "\n", words)
     words = re.sub(" +", " ", words)
     words = " ".join([w.strip() for w in words.split(" ") if w.strip()])
@@ -22,6 +22,7 @@ def parseTextSpacing(s):
 def addAnswersToDD(dd, tags):
     qas = []
     for key, val in dd.items():
+        # key, val is index of tag, and array[question text, question opening tag]
         parentTag = None
         for tag in tags:
             if val[1] in tag and "<input" in tag:
@@ -61,7 +62,7 @@ def question_answer_fast(id, bodyContent):
     dd = {}
     for question, questionHTML in questions.items():
         dd[questionHTML[1]] = [question, questionHTML[0]]
-
+        print("questions, question input tags:", dd[questionHTML[1]])
     qas = addAnswersToDD(dd, tags) 
     return qas
 

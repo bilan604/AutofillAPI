@@ -1,28 +1,16 @@
 import re
+import json
 from container.answer_loading import load_question_data
 
-#
-def parseTextSpacing(s):
-    words = re.sub("</.+?>", "<[/element]>", s)
-    words = re.sub("<.+?>", "<[element]>", words)
+
+def parseAnswerTextSpacing(s):
+    # Lowercase version
+    words = re.sub("-", " ", s.lower().strip())
     words = re.sub("\n+", "\n", words)
     words = re.sub(" +", " ", words)
     words = " ".join([w.strip() for w in words.split(" ") if w.strip()])
     words = words.strip()
     return words
-
-# Answering related functions below
-def getAnsweredQuestions(temp):
-    dd = {}
-    for key in temp:
-        if "/" not in key:
-            key = parseTextSpacing(key)
-            dd[key] = temp[key]
-        else:
-            for keyItem in key.split("/"):
-                keyItem = parseTextSpacing(keyItem)
-                dd[keyItem] = temp[key]
-    return dd
 
 
 def checkAnsweredQuestions(pageQuestion, answeredQuestions):
@@ -33,27 +21,48 @@ def checkAnsweredQuestions(pageQuestion, answeredQuestions):
         return None
 
 
+#### placeholder for data retrieval/recieving endpoint
+def load_question_data_plc(id):
+    import numpy as np
+    import pandas as pd
+    questionData = {}
+    df = pd.read_csv("data/bilan604.txt")
+    mtx = np.array(df)
+    for i in range(len(mtx)):
+        row = [ij for ij in list(mtx[i,:]) if str(ij).lower() != "nan"]
+        questionData[row[0]] = []
+        for j in range(1, len(row)):
+            questionData[row[0]] += [row[j]]
+    return questionData
+
+
 def answer_input_questions(id, inputQuestions):
+    
     ###########
-    # This is an override 
-    #questionData = load_question_data(id)
-    questionData = {"id": "testId", "storedResponses": {"name": "John Doe", "first name": "John", "last name": "Doe", "full legal name/full name/name": "John Doe", "email/email address": "john-doe-123@gmail.com", "phone/phone number/mobile number": "1234567890", "address/home address/address line 1": "123 Test s.t.", "state": "California", "country": "United States", "date of birth/D.O.B.": "01/01/1990", "LinkedIn/LinkedIn URL": "https://www.linkedin.com/in/bill-lan-6aaa01147/", "Github/Github URL/Github Link/Portfolio URL/Portfolio Link": "https://github.com/bilan604"}}
-    ###########
+    # OVERRIDE
+    questionData = load_question_data_plc(id)
+    ##########
 
     if not questionData:
-        return {"response": "No information found for id " + id}
-    
-    #print("inputQuestions", inputQuestions)
-    temp = questionData["storedResponses"]
-    answeredQuestions = getAnsweredQuestions(temp)
-    #print("answeredQuestions", answeredQuestions)
+        return "No information found for id " + id
+
+    def getAnsweredQuestions(questionData):
+        # points to the input question to retrieve it
+        pointer = {}
+        for answer, question_synonyms in questionData.items():
+            for question in question_synonyms:
+                # parse the spacing for pointers to the answer, i.e. "full name"
+                question = parseAnswerTextSpacing(question)
+                pointer[question] = answer
+        return pointer
+
+    # Helper func to make retriever
+    answeredQuestions = getAnsweredQuestions(questionData)
     matchedQuestions = []
     for inputQuestion in inputQuestions:
-
+        # ToDo: add webpag support for questions formatted as synonym1/synonym2
         pageQuestion = inputQuestion["question"]
-        pageQuestion = re.sub("[^a-zA-Z| ]", "", pageQuestion)
-        pageQuestion = re.sub(" +?", " ", pageQuestion)
-        pageQuestion = pageQuestion.lower().strip()
+        pageQuestion = parseAnswerTextSpacing(pageQuestion)
         if pageQuestion in answeredQuestions:
             matchedQA = inputQuestion.copy()
             matchedQA["answer"] = answeredQuestions[pageQuestion]
@@ -64,5 +73,4 @@ def answer_input_questions(id, inputQuestions):
             matchedQA = inputQuestion.copy()
             matchedQA["answer"] = answeredQuestions[relevantQuestion]
             matchedQuestions.append(matchedQA)
-    #print("matchedQuestions:", matchedQuestions, "\n")
-    return {"response": matchedQuestions}
+    return matchedQuestions

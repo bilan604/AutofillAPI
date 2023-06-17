@@ -77,10 +77,8 @@ def inputQuestionsAPI():
             return json.dumps(answers)
         
         if operation == "Add-User-QAs":
-            # "Question-Answer-LLM" but only returns the prompts
-            prompts = data["requestData"]
-            responses = question_answer_prompting(id, prompts)
-            return json.dumps(responses)
+            # Not implemented
+            return json.dumps({})
     
     return json.dumps([None])
 

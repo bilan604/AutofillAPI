@@ -43,6 +43,21 @@ def addAnswersToDD(dd, tags):
 
 
 
+def getFilteredQAs(qas):
+    filteredQAs = []
+    for i in range(len(qas)):
+        qas[i]["question"] = qas[i]["question"].strip()
+    for i in range(len(qas)):
+        add = True
+        for j in range(len(qas)):
+            if i == j: continue
+            if qas[j]["question"] in qas[i]["question"]:
+                add = False
+                break
+        if add:
+            filteredQAs.append(qas[i])
+    return filteredQAs
+
 
 def question_answer_fast(id, bodyContent):
     tags = getTags(bodyContent)
@@ -66,3 +81,37 @@ def question_answer_fast(id, bodyContent):
     qas = addAnswersToDD(dd, tags) 
     return qas
 
+
+
+def question_answer_fast(id, bodyContent, filter_qas=True):
+    tags = getTags(bodyContent)
+    questions = {}
+    for i, tag in enumerate(tags):
+        if len(tag) > 100000: continue
+        
+        words = parseTextSpacing(tag)
+        if 1 <= len(words) < 20:
+            if words not in questions:
+                questions[words] = [tag, i]
+            else:
+                if len(questions[words][0]) > len(tag):
+                    questions[words] = [tag, i]
+    
+    # A {i (index of tag from tags): [question: str, tag_identifier (for question): str]}
+    dd = {}
+    # Duplicate question checker
+    appearances = {}
+    for question, questionHTML in questions.items():
+        if question not in appearances:
+            appearances[question] = 1
+        else:
+            appearances[question] += 1
+    for question, questionHTML in questions.items():
+        if appearances[question.strip()] > 1:
+            continue            
+        dd[questionHTML[1]] = [question, questionHTML[0]]
+        print("questions, question input tags:", dd[questionHTML[1]])
+    qas = addAnswersToDD(dd, tags)
+    if filter_qas:
+        qas = getFilteredQAs(qas)
+    return qas

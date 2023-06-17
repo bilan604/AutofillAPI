@@ -26,7 +26,7 @@ def load_question_data_plc(id):
     import numpy as np
     import pandas as pd
     questionData = {}
-    df = pd.read_csv("data/bilan604.txt")
+    df = pd.read_csv(f"data/"+id+".txt")
     mtx = np.array(df)
     for i in range(len(mtx)):
         row = [ij for ij in list(mtx[i,:]) if str(ij).lower() != "nan"]

@@ -1,11 +1,8 @@
 import re
-import os
-import time
-import base64
-import requests
 import json
-from bs4 import BeautifulSoup
 import openai
+from bs4 import BeautifulSoup
+from container.src.parsing import getWords
 
 
 def getMultiPrompt(text, src, url=""):
@@ -32,28 +29,6 @@ def getMultiPrompt(text, src, url=""):
 “answer_identifier”: “<input type="text" class="whsOnd zHQkBf" jsname="YPqjbf" autocomplete="off" tabindex="0" aria-labelledby="i101" aria-describedby="i102 i103" dir="auto" data-initial-dir="auto" data-initial-value="">”\
 }]"""
     return multi_prompt
-
-
-##
-def getTags(htmlContent):
-    if htmlContent.find("<body") != 0:
-        soup = BeautifulSoup(htmlContent, "html.parser")
-        htmlContent = str(soup.find_all("body")[0])
-        
-    soup = BeautifulSoup(htmlContent, "html.parser")
-    tags = soup.find_all()
-    tags = list(map(str, tags))
-    return tags
-
-
-def getWords(s):
-    words = re.sub("</.+?>", "<[/element]>", s)
-    words = re.sub("<.+?>", "<[element]>", words)
-    words = re.sub("\n+", "\n", words)
-    words = re.sub(" +", " ", words)
-    words = " ".join([w.strip() for w in words.split(" ") if w.strip()])
-    words = words.strip()
-    return words
 
 
 
@@ -102,7 +77,6 @@ def contains_duplicate_questions(src):
     verdict = False
     for key in dd:
         if dd[key] > 1 and s == re.sub("\^", "", s):
-            #print("duplicate key:", key)
             verdict = True    
     return verdict
 
@@ -150,56 +124,12 @@ def getUniqueTags(tags):
             uniqueTags.append(tag)
     return uniqueTags
 
-"""
-
-def question_answer_llm(id, bodyContent):
-    l,r = bodyContent.find("<body"), bodyContent.find("</body>")
-    bodyContent = bodyContent[l:r+len("</body>")]
-    
-    responses = []
-
-    stack = [bodyContent]
-    while stack:
-        newStack = []
-        for item in stack:
-            if len(item) > 20000:
-                tags = list(map(str, BeautifulSoup(item, 'html.parser').find_all()))
-                tags = getUniqueTags(tags)
-                print("Adding", len(tags), "to stack")
-                newStack += tags
-            else:
-                words = getWords(item).strip()
-                text = re.sub("<.+?>", "", words).strip()
-                # if non-empty
-                if re.sub(" +", "", text).strip():
-                    query_prompt = getMultiPrompt(text, item)
-                    print("------------query_prompt:")
-                    print(query_prompt)
-                    time.sleep(6)
-                response = askOpenAI003(id, query_prompt)
-                print("----------GPT3 response:")
-                print(response)
-                print("\n")
-                if response.find("TRUE:") == 0:
-                    user_input_questions = parseLstOfJsonStrs(response[4:])
-                    print(f"{user_input_questions=}\n")
-                    responses += user_input_questions
-                
-        if not newStack:
-            return responses
-        stack = newStack
-    #print("responses:", responses)
-    responses = list(map(json.loads, responses))
-    return responses
-"""
-
 
 def question_answer_prompts(id, bodyContent):
     # A version of question_answer_llm that only returns the prompts
     l,r = bodyContent.find("<body"), bodyContent.find("</body>")
     bodyContent = bodyContent[l:r+len("</body>")]
     
-    responses = []
     prompts = []
     stack = [bodyContent]
     while stack:
@@ -213,7 +143,6 @@ def question_answer_prompts(id, bodyContent):
             else:
                 words = getWords(item).strip()
                 text = re.sub("<.+?>", "", words).strip()
-                # if non-empty
                 if re.sub(" +", "", text).strip():
                     query_prompt = getMultiPrompt(text, item)
                     prompts.append(query_prompt)
@@ -229,9 +158,7 @@ def question_answer_prompting(id, prompts):
     responses = []
     for query_prompt in prompts:
         response = askOpenAI003(id, query_prompt)
-        print("----------GPT3 response:")
-        print(response)
-        print("\n")
+        print(f"{response=}\n")
         if response.find("TRUE:") == 0:
             user_input_questions = parseLstOfJsonStrs(response[4:])
             print(f"{user_input_questions=}\n")

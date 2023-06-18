@@ -1,16 +1,7 @@
-import re
-import json
+import numpy as np
+import pandas as pd
 from container.answer_loading import load_question_data
-
-
-def parseAnswerTextSpacing(s):
-    # Lowercase version
-    words = re.sub("-", " ", s.lower().strip())
-    words = re.sub("\n+", "\n", words)
-    words = re.sub(" +", " ", words)
-    words = " ".join([w.strip() for w in words.split(" ") if w.strip()])
-    words = words.strip()
-    return words
+from container.src.parsing import parseAnswerTextSpacing
 
 
 def checkAnsweredQuestions(pageQuestion, answeredQuestions):
@@ -20,11 +11,9 @@ def checkAnsweredQuestions(pageQuestion, answeredQuestions):
                 return answeredQuestion
         return None
 
-
 #### placeholder for data retrieval/recieving endpoint
 def load_question_data_plc(id):
-    import numpy as np
-    import pandas as pd
+
     questionData = {}
     df = pd.read_csv(f"data/"+id+".txt")
     mtx = np.array(df)
@@ -37,11 +26,8 @@ def load_question_data_plc(id):
 
 
 def answer_input_questions(id, inputQuestions):
-    
-    ###########
-    # OVERRIDE
-    questionData = load_question_data_plc(id)
     ##########
+    questionData = load_question_data_plc(id)
 
     if not questionData:
         return "No information found for id " + id

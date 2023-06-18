@@ -73,7 +73,7 @@ def question_answer_fast(id, bodyContent):
                 if len(questions[words][0]) > len(tag):
                     questions[words] = [tag, i]
     
-    # A {i (index of tag from tags): [question: str, tag_identifier (for question): str]}
+    # Map<int, Array<str>>: Indexes of tags, and array of tag identifiers from the html
     dd = {}
     for question, questionHTML in questions.items():
         dd[questionHTML[1]] = [question, questionHTML[0]]

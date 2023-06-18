@@ -4,6 +4,7 @@ answering.py
 target.py
 /data
 /container
+__pycache__/
 /__pycache__
 /__pycache__/*
 /__pycache__/

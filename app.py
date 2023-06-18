@@ -57,6 +57,7 @@ def index():
 
 
 if __name__ == "__main__":
+    print(os.getcwd())
     path = "c:/Users/bill/github/AutofillAPI"
     os.chdir(path)
 

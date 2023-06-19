@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from container.answer_loading import load_question_data
-from container.src.parsing import parseAnswerTextSpacing
+from container.parsing import parseAnswerTextSpacing
 
 
 def checkAnsweredQuestions(pageQuestion, answeredQuestions):

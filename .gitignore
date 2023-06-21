@@ -1,7 +1,6 @@
 # Ignoring the env file
 .env
 /data
-/container
 __pycache__/
 /__pycache__
 /__pycache__/*

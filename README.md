@@ -1,5 +1,7 @@
 # AutofillAPI
 
-The chrome extension will be placed in a separate repository.  
+To use this Repository:
 
-Note: src is currently in the .gitignore because of unused codefiles. This will not affect the current version.  
+1. Git clone this repository
+2. Open the folder containing the clone files and make a '.env' file and fill in the fields in '.env.sample'
+3. Run app.py

@@ -59,4 +59,23 @@ def answer_input_questions(id, inputQuestions):
             matchedQA = inputQuestion.copy()
             matchedQA["answer"] = answeredQuestions[relevantQuestion]
             matchedQuestions.append(matchedQA)
+
+    # filter out answer_identifiers with multiple appearances
+    memo = {}
+    for mq in matchedQuestions:
+        if mq["answer_identifier"] not in memo:
+            memo[mq["answer_identifier"]] = 1
+        else:
+            memo[mq["answer_identifier"]] += 1
+
+    matchedQuestions = [mq for mq in matchedQuestions if memo[mq["answer_identifier"]] == 1]
+
+    # filter out question_identifiers with multiple appearances
+    memo = {}
+    for mq in matchedQuestions:
+        if mq["question_identifier"] not in memo:
+            memo[mq["question_identifier"]] = 1
+        else:
+            memo[mq["question_identifier"]] += 1
+    matchedQuestions = [mq for mq in matchedQuestions if memo[mq["question_identifier"]] == 1]
     return matchedQuestions

@@ -2,7 +2,7 @@ import re
 import json
 import openai
 from bs4 import BeautifulSoup
-from container.src.parsing import getWords
+from container.parsing import getWords
 
 
 def getMultiPrompt(text, src, url=""):

@@ -1,11 +1,11 @@
+# Ignoring the env file
 .env
-advance_search.py
-answering.py
-target.py
 /data
 /container
 __pycache__/
 /__pycache__
 /__pycache__/*
-/__pycache__/
+
+# Ignoring folders within folders
+container/__pycache__/
 container/src/

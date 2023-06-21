@@ -1,25 +1,9 @@
-venv/
-
-*.pyc
-__pycache__/
-
-instance/
-
-.pytest_cache/
-.coverage
-htmlcov/
-
-dist/
-build/
-*.egg-info/
-
-.DS_STORE
-
+# Ignoring the env file
 .env
-/.env
+__pycache__/
+/__pycache__
+/__pycache__/*
 
-functions.py
-src/*
-/src/*
-/src/
-/src/*
+# Ignoring folders within folders
+container/__pycache__/
+container/src/

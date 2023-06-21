@@ -1,75 +1,68 @@
 import os
-import openai
 import json
-import flask
+import openai
+from dotenv import load_dotenv
+from functionHandling import *
 from flask import Flask, redirect, render_template, request, url_for
-from functions import *
+load_dotenv()
+
 
 count = 0
 app = Flask(__name__)
 
+operationFunctionsMap = {
+    "Question-Answer-LLM": doQuestionAnswerLLM,
+    "Question-Answer-Prompts": doQuestionAnswerPrompts,
+    "Question-Answer-Prompting": doQuestionAnswerPrompting,
+    "Question-Answer-Fast": doQuestionAnswerFast,
+    "Question-Answer-Fast-2": doQuestionAnswerFast2,
+    "Answer-Input-Questions": doAnswerInputQuestions
+}
+
+
+def operationFunctionHandler(requestorId, data):
+    operation = data.get("operation", "")
+    
+    if operation not in operationFunctionsMap:
+        return "Invalid operation"
+    
+    return operationFunctionsMap[operation](requestorId, data)
+
 
 @app.route("/inputQuestions/", methods=("GET", "POST"))
 def inputQuestionsAPI():
-    data = request.json
+    print("Function call, inputQuestionsAPI()")
+    if type(request.json) != str:
+        data = request.json
+    else:
+        try:
+            data = json.loads(request.json)
+        except:
+            print("Invalid request data recieved at inputQuestionsAPI()")
+            return "Invalid request data."
+    
     if request.method == "POST":
-        id = ""
-        if "id" in data:
-            id = data["id"]
-        # Find the operation requested
-        operation = ""
-        if "operation" in data:
-            operation = data["operation"]
-        if not id or not operation:
-            return "Please specify id and operation"
-        # Do the operation
-        if operation == "Question-Answer-Identification":
-            htmlContent = data["html_content"]
-            inputQuestions = get_llm_input_questions(id, htmlContent)
-            return inputQuestions
-    return "Hello World, inputQuestions!"
+        # an id for loading saved questions and answers
+        requestorId = data.get("id", "") 
+        return operationFunctionHandler(requestorId, data)
+    
+    return json.dumps([None])
 
 
 @app.route("/", methods=("GET", "POST"))
 def index():
     data = request.json
     if request.method == "POST":
-        id = ""
-        if "id" in data:
-            id = data["id"]
-        # Find the operation requested
-        operation = ""
-        if "operation" in data:
-            operation = data["operation"]
-        return {"response": "Hello, World!"}
-    return "Hello, World!"
-
-
-def load_credentials():
-    rightPath = False
-    for file in os.listdir():
-        if file == '.env':
-            rightPath = True
-            break
-    if not rightPath:
-        print("Please check path: .env file not in current working directory.")
-        return {}
-    
-    credentials = {}
-    with open('.env', 'r') as f:
-        for line in f.readlines():
-            line = line.strip()
-            if not line: continue
-            lineLst = line.split("=")
-            KEY = lineLst[0]
-            VALUE = "".join(lineLst[1:])
-            credentials[KEY] = VALUE
-    return credentials
+        return "POST Hello, World!"
+    return "GET Hello World!"
 
 
 if __name__ == "__main__":
+    print(os.getcwd())
     path = "c:/Users/bill/github/AutofillAPI"
     os.chdir(path)
-    credentials = load_credentials()
-    openai.api_key = credentials["OPENAI_API_KEY"]
+
+    KEY = os.getenv("OPENAI_API_KEY")
+    openai.api_key = KEY
     app.run()
+

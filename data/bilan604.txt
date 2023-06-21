@@ -1,0 +1,14 @@
+Item1, Item2, Item3, Item4, Item5, Item6, Item7, Item8, Item9, Item10, Item11, Item12,
+Xing Yang Lan, full name, full legal name
+Xing Yang, first name
+Lan, last name, legal last name
+Bill, prefered name, name
+bilan604gm@gmail.com, email
+530 760 6956,phone,phone number
+3151 S St, address line 1, street address,address
+Sacramento, city
+California, state
+United States, country
+Canada, nationality
+https://www.linkedin.com/in/bill-lan-6aaa01147/, linkedin url, linkedin profile, linkedin, profile link
+https://github.com/bilan604, github url, github profile, github, portfolio url, portfolio link

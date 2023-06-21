@@ -31,6 +31,7 @@ def operationFunctionHandler(requestorId, data):
 
 @app.route("/inputQuestions/", methods=("GET", "POST"))
 def inputQuestionsAPI():
+    print("Function call, inputQuestionsAPI()")
     if type(request.json) != str:
         data = request.json
     else:

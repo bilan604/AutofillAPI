@@ -8,10 +8,11 @@ def getTags(htmlContent):
     tags = list(map(str, tags))
     return tags
 
-#
+
 def parseTextSpacing(s):
-    words = re.sub("</.+?>", "", s)
-    words = re.sub("<.+?>", "", words)
+    """This function removes the HTML tags and extracts uniformly spaced text
+    """
+    words = re.sub("<.+?>", "", s)
     words = re.sub("\n+", "\n", words)
     words = re.sub(" +", " ", words)
     words = " ".join([w.strip() for w in words.split(" ") if w.strip()])
@@ -20,21 +21,42 @@ def parseTextSpacing(s):
 
 
 def addAnswersToDD(dd, tags):
-    qas = []
-    for key, val in dd.items():
-        # key, val is index of tag, and array[question text, question opening tag]
-        parentTag = None
+    """
+    This function locates parent tags for existing questions/labels and checks
+    if there is a minimal parent tag
+    that contains both the label and the input
+    """
+
+    def findShortestParent(q, qt, tags):
+        m = ""
+        ml = float('inf')
         for tag in tags:
-            if val[1] in tag and "<input" in tag:
-                if not parentTag or len(parentTag) >= len(tag):
-                    parentTag = tag
-        inputs = BeautifulSoup(parentTag, 'html.parser').find_all('input')
-        inputs = list(map(str, inputs))
-        dd[key].append(inputs[0])
-        # inputs of length 1 constraint:
-        # Returns input forms with only one element for answering (No multi-select)
-        if len(inputs) == 1:
-            qas.append({
+            if qt in tag:
+                if len(tag) < ml:
+                    m = tag
+                    ml = len(tag)
+        return m
+
+    qas = []
+    tagsContainingInput = [tag for tag in tags if tag.count("<input ") == 1]
+    print(f"{len(tagsContainingInput)=}\n")
+    for key, val in dd.items():
+        question, questionTag = val
+        parentTag = findShortestParent(question, questionTag, tagsContainingInput)
+
+        idx = parentTag.find("<input")
+        input = parentTag[idx:]
+        input = input[:input.find(">")+1]
+        dd[key].append(input)
+    
+    for key in dd:
+        # No answer identifier
+        if len(dd[key]) != 3: continue
+        # Empty answer identifier
+        if not dd[key][-1]: continue
+        # indicating a parent containing one input was found
+        # ToDo: check that no other questions are in the 
+        qas.append({
             "question": dd[key][0],
             "question_identifier": dd[key][1],
             "answer_identifier": dd[key][2]
@@ -42,11 +64,14 @@ def addAnswersToDD(dd, tags):
     return qas
 
 
-
 def getFilteredQAs(qas):
-    filteredQAs = []
+    nonEmptyQAs = []
     for i in range(len(qas)):
-        qas[i]["question"] = qas[i]["question"].strip()
+        if re.sub("[^a-zA-Z]", "", qas[i]["question"]).strip():
+            nonEmptyQAs.append(qas[i])
+    qas = nonEmptyQAs
+
+    filteredQAs = []
     for i in range(len(qas)):
         add = True
         for j in range(len(qas)):
@@ -54,12 +79,16 @@ def getFilteredQAs(qas):
             if qas[j]["question"] in qas[i]["question"]:
                 add = False
                 break
-        if add:
-            filteredQAs.append(qas[i])
+        if not add:
+            print("removing", qas[i]["question"])
+            continue
+        
+        filteredQAs.append(qas[i])
     return filteredQAs
 
 
-def question_answer_fast(id, bodyContent):
+def question_answer_fast(id, bodyContent, filter_qas=False):
+    # regarding filtered_qas = False by default: They have been filtered in answers
     tags = getTags(bodyContent)
     questions = {}
     for i, tag in enumerate(tags):
@@ -75,32 +104,9 @@ def question_answer_fast(id, bodyContent):
     
     # Map<int, Array<str>>: Indexes of tags, and array of tag identifiers from the html
     dd = {}
-    for question, questionHTML in questions.items():
-        dd[questionHTML[1]] = [question, questionHTML[0]]
-        print("questions, question input tags:", dd[questionHTML[1]])
-    qas = addAnswersToDD(dd, tags) 
-    return qas
-
-
-
-def question_answer_fast(id, bodyContent, filter_qas=True):
-    tags = getTags(bodyContent)
-    questions = {}
-    for i, tag in enumerate(tags):
-        if len(tag) > 100000: continue
-        
-        words = parseTextSpacing(tag)
-        if 1 <= len(words) < 20:
-            if words not in questions:
-                questions[words] = [tag, i]
-            else:
-                if len(questions[words][0]) > len(tag):
-                    questions[words] = [tag, i]
-    
-    # A {i (index of tag from tags): [question: str, tag_identifier (for question): str]}
-    dd = {}
     # Duplicate question checker
-    appearances = {}
+    appearances = {} 
+
     for question, questionHTML in questions.items():
         if question not in appearances:
             appearances[question] = 1
@@ -110,8 +116,10 @@ def question_answer_fast(id, bodyContent, filter_qas=True):
         if appearances[question.strip()] > 1:
             continue            
         dd[questionHTML[1]] = [question, questionHTML[0]]
-        print("questions, question input tags:", dd[questionHTML[1]])
+        print("questions:", question)
     qas = addAnswersToDD(dd, tags)
     if filter_qas:
         qas = getFilteredQAs(qas)
+
+    # remove answer_identifiers appearing more than once
     return qas

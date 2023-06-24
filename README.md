@@ -3,7 +3,8 @@
 #### To use this Repository:
 1. Git clone this repository
 2. Open the folder containing the clone files and make a '.env' file and fill in the fields in '.env.sample'
-3. Run app.py
+3. install the dependencies in the directory using pip
+3. Run using python main.py
 
 #### To use the chrome extension:
 Open Google Chrome, click the three dots in the top right corner (settings), click then manage extensions, make sure developer mode is toggled to on, click load upacked, and select the folder 'Chrome-extension'  

@@ -1,5 +1,6 @@
 # Ignoring the env file
 .env
+
 __pycache__/
 /__pycache__
 /__pycache__/*
@@ -7,3 +8,4 @@ __pycache__/
 # Ignoring folders within folders
 container/__pycache__/
 container/src/
+

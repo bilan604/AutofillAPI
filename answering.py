@@ -26,7 +26,7 @@ def load_question_data_plc(id):
 
 
 def answer_input_questions(id, inputQuestions):
-    ##########
+
     questionData = load_question_data_plc(id)
 
     if not questionData:

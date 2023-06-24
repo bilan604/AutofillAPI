@@ -7,7 +7,6 @@ This file contains handler functions for information. Not required or implemente
 Currently there is a data folder containing the question-answer information that
 parses them as CSVs.
 """
-# ChatGPT
 def base64_encode(string):
     # Convert string to bytes
     string_bytes = string.encode('utf-8')
@@ -20,7 +19,7 @@ def base64_encode(string):
     
     return encoded_string
 
-# ChatGPT
+
 def base64_decode(encoded_string):
     # Convert base64 string to bytes
     encoded_bytes = encoded_string.encode('utf-8')

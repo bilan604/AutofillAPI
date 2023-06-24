@@ -7,8 +7,8 @@ from flask import Flask, redirect, render_template, request, url_for
 load_dotenv()
 
 
-count = 0
 app = Flask(__name__)
+
 
 operationFunctionsMap = {
     "Question-Answer-LLM": doQuestionAnswerLLM,
@@ -31,19 +31,24 @@ def operationFunctionHandler(requestorId, data):
 
 @app.route("/inputQuestions/", methods=("GET", "POST"))
 def inputQuestionsAPI():
-    print("Function call, inputQuestionsAPI()")
-    if type(request.json) != str:
-        data = request.json
-    else:
-        try:
-            data = json.loads(request.json)
-        except:
-            print("Invalid request data recieved at inputQuestionsAPI()")
-            return "Invalid request data."
-    
+
     if request.method == "POST":
+        print("Function call, inputQuestionsAPI()")
+        if type(request.json) != str:
+            data = request.json
+        else:
+            try:
+                data = json.loads(request.json)
+            except:
+                print("Invalid request data recieved at inputQuestionsAPI()")
+                return "Invalid request data."
+        
         # an id for loading saved questions and answers
-        requestorId = data.get("id", "") 
+        requestorId = data.get("id", {}) 
+
+        if not requestorId:
+            return "No requestor Id"
+
         return operationFunctionHandler(requestorId, data)
     
     return json.dumps([None])
@@ -57,12 +62,8 @@ def index():
     return "GET Hello World!"
 
 
-if __name__ == "__main__":
-    print(os.getcwd())
-    path = "c:/Users/bill/github/AutofillAPI"
+def run_app():
+    path = "/".join(os.getcwd().split("\\")[:-1])
     os.chdir(path)
-
-    KEY = os.getenv("OPENAI_API_KEY")
-    openai.api_key = KEY
     app.run()
 

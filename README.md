@@ -10,27 +10,45 @@ Open Google Chrome, click the three dots in the top right corner (settings), cli
 
 Click on background page to view the console logs.  
 
-To call the api endpoint:
+Here is an example of the loaded LLM output, which gets deduplicated and contextualized. 
 ```
-import json
-import requests
-
-
-def do_operation(id, operation, data_object):
-    ROUTE = "http://127.0.0.1:5000/inputQuestions/"
-
-    # requests must follow this format
-    request_json_data = {
-        "id": id,
-        "operation": operation,
-        "requestData": data_object
-    }
-
-    response = requests.post(
-        url=ROUTE,
-        json=json.dumps(request_json_data)
-    )
-
-    response_data = json.loads(response.text)
-    return response_data
+[
+    {'question': 'Forwarding Agent', 
+    'question_identifier': '<label class=input-group-text for=CMForwarder\\>Forwarding Agent</label>', 
+    'answer_identifier': '<input autocomplete=off class=form-control data-docit-input=true id=CMForwarder/>'}, 
+    {'question': 'Address', 
+    'question_identifier': '<label class=input-group-text\\>Address*</label>', 
+    'answer_identifier': ''}, 
+    {'question': 'Name', 
+    'question_identifier': '<label class=input-group-text\\>Name</label>', 
+    'answer_identifier': '<input class=form-control data-docit-input=true id=CMForwarderName/>'}, 
+    {'question': 'Email', 
+    'question_identifier': '<label class=input-group-text\\>Email</label>', 
+    'answer_identifier': '<input class=form-control data-docit-input=true id=CMForwarderEmail/>'}, 
+    {'question': 'Phone', 
+    'question_identifier': '<label class=input-group-text\\>Phone</label>', 
+    'answer_identifier': '<input class=form-control data-docit-input=true id=CMForwarderPhone/>'}, 
+    {'question': 'Fax', 
+    'question_identifier': '<label class=input-group-text\\>Fax</label>', 
+    'answer_identifier': '<input class=form-control data-docit-input=true id=CMForwarderFax/>'}, 
+    {'question': 'Shipper', 
+    'question_identifier': '<label class=input-group-text for=CMShipper\\>Shipper*</label>', 
+    'answer_identifier': '<input autocomplete=off class=form-control data-docit-input=true id=CMShipper/>'}, 
+    {'question': 'Address', 
+    'question_identifier': '<label class=input-group-text\\>Address*</label>', 
+    'answer_identifier': ''}, 
+    {'question': 'Name', 
+    'question_identifier': '<label class=input-group-text\\>Name</label>', 
+    'answer_identifier': '<input class=form-control data-docit-input=true id=CMShipperName/>'},
+    {'question': 'Email', 
+    'question_identifier': '<label class=input-group-text\\>Email</label>', 
+    'answer_identifier': '<input class=form-control data-docit-input=true id=CMShipperEmail/>'}, 
+    {'question': 'Phone', 
+    'question_identifier': '<label class=input-group-text\\>Phone</label>', 
+    'answer_identifier': '<input class=form-control data-docit-input=true id=CMShipperPhone/>'}, 
+    {'question': 'Fax', 
+    'question_identifier': '<label class=input-group-text\\>Fax</label>', 
+    'answer_identifier': '<input class=form-control data-docit-input=true id=CMShipperFax/>'}
+]
 ```
+
